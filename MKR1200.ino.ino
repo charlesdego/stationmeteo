@@ -1,11 +1,12 @@
 /*
   Station Meteo Pro
   avec : 
-     - Arduino uno
+     - Arduino MKR1200
      - Anémomètre Lextronic   LEXCA003
      - Girouette Lextronic    LEXCA002
      - Pluviomètre Lextronic  LEXCA001
-     - 
+     - Temperature/humidité DHT22
+     Envoi des messages à sigfox toutes les 15 minutes : t15, h15, ....
 
  *  Fichiers d'entête des librairies
  */
@@ -18,8 +19,6 @@
 #define DHTTYPE DHT22       // DHT 22  (AM2302)
 DHT dht(DHTPIN, DHTTYPE); 
 
-//static const uint32_t DELAY_1_S      = 1000UL;
-//static const uint32_t DELAY_1_MINUTE = DELAY_1_S * 60UL;
 
 /* 
  *  Variables statiques
