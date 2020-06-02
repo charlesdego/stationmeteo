@@ -5,7 +5,13 @@
      - Anémomètre Lextronic   LEXCA003
      - Girouette Lextronic    LEXCA002
      - Pluviomètre Lextronic  LEXCA001
-     - 
+     - DHT 22
+     
+     - Shield ATIM SIGFOX 
+     https://www.lextronic.fr/shield-radio-arm-n8-sigfox-17354.html
+     https://www.atim.com/fr/produits/catalogue/modules-shields/module-carte-radio-arduino-acw-duino/
+     IL Y A UN PB LIGNE 67 A 76 JE PENSE
+     ENVOI DU MESSAGE LIGNE 221
 
  *  Fichiers d'entête des librairies
  */
