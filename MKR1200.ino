@@ -1,12 +1,11 @@
 /*
   Station Meteo Pro
   avec : 
-     - Arduino MKR1200
+     - Arduino MKR1200-SIGFOX
      - Anémomètre Lextronic   LEXCA003
      - Girouette Lextronic    LEXCA002
      - Pluviomètre Lextronic  LEXCA001
-     - Temperature/humidité DHT22
-     Envoi des messages à sigfox toutes les 15 minutes : t15, h15, ....
+     - DHT22
 
  *  Fichiers d'entête des librairies
  */
@@ -15,10 +14,9 @@
 #include <SigFox.h>
 
 // Temperature et Humidité
-#define DHTPIN 4   // Changer le pin sur lequel est branché le DHT
+#define DHTPIN 5   // Changer le pin sur lequel est branché le DHT
 #define DHTTYPE DHT22       // DHT 22  (AM2302)
 DHT dht(DHTPIN, DHTTYPE); 
-
 
 /* 
  *  Variables statiques
@@ -28,9 +26,7 @@ DHT dht(DHTPIN, DHTTYPE);
 #define PLUVIOMETRE 0   //pin D2, interruption n°0
 #define VALEUR_PLUVIOMETRE 0.2794 //valeur en mm d'eau à chaque bascule d'auget
 #define PI        3.1415
-#define RAYON     0.098  //rayon en mètre de l'anémomètre en mètre à vérifier
-#define ALTITUDE  202   //altitude de la station météo
-#define TEMP_OFFSET -2  //offset température 
+#define RAYON     0.08  //rayon en mètre de l'anémomètre en mètre à vérifier
 
 
 /* 
@@ -38,35 +34,21 @@ DHT dht(DHTPIN, DHTTYPE);
  */
 unsigned long previousMillis=   0;
 unsigned long previousMillis2=  0;
-unsigned long delaiAnemometre = 20000L;    //3 secondes
+unsigned long delaiAnemometre = 3000L;    //3 secondes
 unsigned long delaiProgramme =  900000L;   //15min
-float gust(0);        //vent max cumulé sur 1 min
-float wind(0);        //vent moyen cumulé sur 1 min
+float gust(0);        //vent max cumulé sur 15 min
+float wind(0);        //vent moyen cumulé sur 15 min
 int nbAnemo = 0;      //nb d'occurence de mesure Anemo
-float gir(0);         //direction moyenne de la girouette sur 1 min (en degrés)
+float gir(0);         //direction moyenne de la girouette sur 15 min (en degrés)
 int nbGir = 0;        //nb d'occurence de mesure Anemo
-float pluvio1min(0);  //pluie sur 1 min
-float vitesseVent(0); //vent moyen cumulé sur 1 min
-float temp(0);        //température moyenne sur 1 min
-float hum(0);         //humidité moyenne sur 1 min
-// float pressure(0);    //température moyenne sur 1 min
+float pluvio1min(0);  //pluie sur 15 min
+float vitesseVent(0); //vent moyen cumulé sur 15 min
+float temp(0);        //température moyenne sur 15 min
+float hum(0);         //humidité moyenne sur 15 min
 int nbBME280 = 0;     //nb d'occurence d'appel du capteur BME280
-// bool SDStatus = false;//etat initial de la carte SD
 volatile unsigned int countAnemometre = 0;  //variable pour l'interruption de l'anémomètre pour compter les impulsions
 volatile unsigned int countPluviometre = 0; //variable pour l'interruption du pluviomètre pour compter les impulsions
-// byte mac[6] = { 0xBE, 0xEF, 0x00, 0xFD, 0xb7, 0x91 }; //mac address de la carte Ethernet Arduino
-// char macstr[18];
-// const byte SDCARD_CS_PIN = 10;  //port de la carte SD
 boolean debug = true;  //TRUE = ecriture du programme, active tous les Serial.Println ; FALSE = aucun println affichés
-//double val1 = 0;
-//variable pour tableau de température
-//int tab_index = 0;  
-//int tab_indexMin = 0;
-//int tab_indexMax = 0;
-//int nbValeur = 0;
-//float tempFinale(0);
-//float cumul(0);
-//static float tab[20]; 
 
 // sigfox
 typedef struct __attribute__ ((packed)) sigfox_message {
@@ -106,67 +88,8 @@ void setup()
  attachInterrupt(PLUVIOMETRE,interruptPluviometre,RISING) ;
  attachInterrupt(ANEMOMETRE,interruptAnemometre,RISING) ;
 
-/* 
- *  Fonction qui transforme la date fournie par le NTP en date YMD
- *  RETURN : date(YMD)
- */
 
 }
-
-/* 
- *  Fonction qui transforme la date fournie par le NTP en date Y-M-D pour l'insertion MySQL
- *  RETURN : date(Y-M-D)
- 
-}
-
-/* 
- *  Fonction qui transforme l'heure fournie par le NTP en heure Hi
- *  RETURN : time(Hi)
- */
-
-
-/* 
- *  Fonction qui transforme l'heure fournie par le NTP en heure time(H:i) pour l'insertion MySQL
- *  RETURN : time(H:i)
- */
-
-/* 
- *  Fonction qui génère le nom du dossier d'enregistrement sur carte SD en fonction de l'année et mois en cours
- *  RETURN : nom du dossier au format date(YM)
- */
-
-
-/* 
- *  Fonction qui génère le nom du fichier d'enregistrement sur carte SD en fonction de l'année, du mois et jour en cours
- *  RETURN : nom du fichier (incluant les répertoires) au format date(YMD).txt
- */
-
-
-/* 
- *  Fonction qui permet de séparer une chaine en fonction d'un caractère (equivalent explode PHP) et du numéro d'index voulu
- *  RETURN :chaine extraite dans la position de l'index
- */
-
-// *  Fonction qui permet de générer la date et l'heure courante
-// */
-//void dateTime(uint16_t* date, uint16_t* time) {
-//  time_t t = now();
-// *date = FAT_DATE(year(t), month(t), day(t));  
-//time = FAT_TIME(hour(t), minute(t), second(t));
-//}
-
-/* 
- *  Fonction qui corrige la pression atmosphérique (hPa) en fonction de l'altitude et la température
- *  RETURN : pression atmo corrigée
- */
-//fonction qui corrige la pression en fonction de l'altitude
-//double getP(double Pact, double temp) {
- // return Pact * pow((1 - ((0.0065 * ALTITUDE) / (temp + 0.0065 * ALTITUDE + 273.15))), -5.257);
-//}
-
-/* 
- *  Fonction d'interruption de l'anémomètre qui incrémente un compteur à chaque impulsion
- */
 void interruptAnemometre(){
   countAnemometre++;
 }
@@ -315,10 +238,8 @@ SigFox.end();
      Serial.println(avghum);
       Serial.println("------------------------");
       Serial.println("------------------------");}
-  
-
-  
-    //20/10/2019
+ 
+     //20/10/2019
     //Modification de l'emplacement des RAZ : fin de programme -> avant insertion BDD et carte SD pour ne plus avoir la latence.
     //RAZ des compteurs qui ont servi a calculé les valeurs moyennes sur 1 min
     wind = 0;
@@ -336,11 +257,5 @@ SigFox.end();
     r15 = 0;
     g15 = 0;
     
-  
- 
-    
- }
-
-  
-   
+  }
 } 
