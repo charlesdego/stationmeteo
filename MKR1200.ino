@@ -36,15 +36,15 @@ unsigned long previousMillis=   0;
 unsigned long previousMillis2=  0;
 unsigned long delaiAnemometre = 3000L;    //3 secondes
 unsigned long delaiProgramme =  900000L;   //15min
-float gust(0);        //vent max cumulé sur 15 min
-float wind(0);        //vent moyen cumulé sur 15 min
+float gust(0);        //vent max cumulé sur 1 min
+float wind(0);        //vent moyen cumulé sur 1 min
 int nbAnemo = 0;      //nb d'occurence de mesure Anemo
-float gir(0);         //direction moyenne de la girouette sur 15 min (en degrés)
+float gir(0);         //direction moyenne de la girouette sur 1 min (en degrés)
 int nbGir = 0;        //nb d'occurence de mesure Anemo
-float pluvio1min(0);  //pluie sur 15 min
-float vitesseVent(0); //vent moyen cumulé sur 15 min
-float temp(0);        //température moyenne sur 15 min
-float hum(0);         //humidité moyenne sur 15 min
+float pluvio1min(0);  //pluie sur 1 min
+float vitesseVent(0); //vent moyen cumulé sur 1 min
+float temp(0);        //température moyenne sur 1 min
+float hum(0);         //humidité moyenne sur 1 min
 int nbBME280 = 0;     //nb d'occurence d'appel du capteur BME280
 volatile unsigned int countAnemometre = 0;  //variable pour l'interruption de l'anémomètre pour compter les impulsions
 volatile unsigned int countPluviometre = 0; //variable pour l'interruption du pluviomètre pour compter les impulsions
@@ -130,7 +130,7 @@ void loop(){
   //Enregistrement cumulé des valeurs
   if (currentMillis - previousMillis > delaiAnemometre){
     previousMillis = millis();
-    vitesseVent = (PI * RAYON * 2 * countAnemometre)/20*3.6; //20 = durée de prise de mesure (20sec)
+    vitesseVent = (PI * RAYON * 2 * countAnemometre)/3*3.6; //3 = durée de prise de mesure (sec)
     
     if(vitesseVent>gust) gust = vitesseVent;
     wind += vitesseVent;
